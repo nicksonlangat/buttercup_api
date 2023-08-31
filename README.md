@@ -13,6 +13,15 @@ The live demo of this project is accessible [via this link](http://localhost:808
 - **Register & Login pages**. These pages allow users to create user accounts that they can use to place orders.
 
 ## CHANGELOG
+
+### Version 1.0.1
+#### New Features
+- Added ability to add items to cart
+- Added ability to remove items from cart
+- Added ability clear the cart from current session
+#### Bug fixes
+- No bug fixes in this release
+
 ### Version 1.0.0
 #### New Features
 - Added category CRUD endpoints
