@@ -3,18 +3,34 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from common.pagination import LimitOffsetPagination, get_paginated_response
+from common.pagination import (
+    LimitOffsetPagination, get_paginated_response
+)
 
 from .models import Category
-from .serializers import CategorySerializer, FlowerSerializer
-from .services import Cart, category_create, category_update, flower_create
-from .selectors import category_list, flower_list
+from .serializers import (
+    CategorySerializer, FlowerSerializer,
+      OrderItemSerializer, OrderSerializer
+)
+from .services import (
+    Cart, category_create,
+    category_update, flower_create, 
+    order_item_create
+)
+from .selectors import (
+    category_list, flower_list, 
+    order_item_list, order_list
+)
 
 
-class CategoryCreateApi(generics.CreateAPIView):
+class CategoryApi(
+    generics.CreateAPIView, generics.ListAPIView, 
+    generics.RetrieveUpdateAPIView, generics.DestroyAPIView):
     """
-    API endpoint that allows categories to be created
+    API for category operations
     """
+    class Pagination(LimitOffsetPagination):
+        default_limit = 25
 
     serializer_class = CategorySerializer
 
@@ -23,14 +39,6 @@ class CategoryCreateApi(generics.CreateAPIView):
         category_create(**serializer.validated_data)
         return Response(status=status.HTTP_201_CREATED)
 
-
-class CategoryListApi(generics.ListAPIView):
-    """
-    API endpoint that lists all categories
-    """
-    class Pagination(LimitOffsetPagination):
-        default_limit = 25
-    
     def get(self, request, *args, **kwargs):
         filters = request.query_params
         qs = category_list(filters=filters)
@@ -43,17 +51,8 @@ class CategoryListApi(generics.ListAPIView):
             view=self,
         )
 
-
-class CategoryUpdateApi(generics.RetrieveUpdateAPIView):
-    """
-    API endpoint that updates a category
-    """
-
-    queryset = category_list()
-    serializer_class = CategorySerializer
-
     def patch(self, request, pk, format=None):  
-        category = self.queryset.objects.get(id=pk)
+        category = category_list().objects.get(id=pk)
         serializer = self.serializer_class(category, data=request.data)
         if serializer.is_valid():
             category_update(category, data=serializer.data)
@@ -64,21 +63,19 @@ class CategoryUpdateApi(generics.RetrieveUpdateAPIView):
         return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CategoryDeleteApi(generics.DestroyAPIView):
-    """
-    API endpoint that deletes a category
-    """
-
     def delete(self, request, pk, format=None):
         category = Category.objects.get(id=pk)
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class FlowerCreateApi(generics.CreateAPIView):
+class FlowerApi(generics.CreateAPIView, generics.ListAPIView):
     """
-    API endpoint that allows products to be created
+    API for product operations
     """
+
+    class Pagination(LimitOffsetPagination):
+        default_limit = 25
 
     serializer_class = FlowerSerializer
     
@@ -88,14 +85,6 @@ class FlowerCreateApi(generics.CreateAPIView):
         flower_create(**serializer.validated_data)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class FlowerListApi(generics.ListAPIView):
-    """
-    API endpoint that lists all flowers
-    """
-    class Pagination(LimitOffsetPagination):
-        default_limit = 25
     
     def get(self, request, *args, **kwargs):
         filters = request.query_params
@@ -108,11 +97,11 @@ class FlowerListApi(generics.ListAPIView):
             request=request,
             view=self,
         )
-
+    
 
 class CartAPI(APIView):
     """
-    Single API to handle cart operations
+    API for cart operations
     """
     def get(self, request, format=None):
         cart = Cart(request)
@@ -145,3 +134,56 @@ class CartAPI(APIView):
             {"message": "cart updated"},
             status=status.HTTP_202_ACCEPTED)
 
+
+class OrderApi(generics.CreateAPIView, generics.ListAPIView):
+    """
+    API for order operations
+    """
+    class Pagination(LimitOffsetPagination):
+        default_limit = 25
+
+    serializer_class = OrderSerializer
+    
+    def post(self, request, *args, **kwargs):
+        cart = Cart(request)
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        order = serializer.save()
+        order_item_create(order, list(cart.__iter__()))
+        cart.clear()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    def get(self, request, *args, **kwargs):
+        filters = request.query_params
+        qs = order_list(filters=filters)
+
+        return get_paginated_response(
+            pagination_class=self.Pagination,
+            serializer_class=OrderSerializer,
+            queryset=qs,
+            request=request,
+            view=self,
+        )
+
+
+class OrderItemApi(generics.ListAPIView):
+    """
+    API endpoint that for order item operations
+    """
+    class Pagination(LimitOffsetPagination):
+        default_limit = 25
+
+    serializer_class = OrderItemSerializer
+
+    def get(self, request, *args, **kwargs):
+        filters = request.query_params
+        qs = order_item_list(filters=filters)
+
+        return get_paginated_response(
+            pagination_class=self.Pagination,
+            serializer_class=OrderItemSerializer,
+            queryset=qs,
+            request=request,
+            view=self,
+        )

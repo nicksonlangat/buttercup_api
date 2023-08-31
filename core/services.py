@@ -7,7 +7,7 @@ from django.conf import settings
 from common.services import model_update
 
 from .serializers import FlowerSerializer
-from .models import Category, Flower
+from .models import Category, Flower, Order, OrderItem
 
 def category_create(*, name: str) -> Category:
     obj = Category(name=name)
@@ -40,6 +40,16 @@ def flower_create(*, category, name, description, image, price, available) -> Fl
         obj.save()
 
         return obj
+
+
+def order_item_create(order, cart_items) -> OrderItem:
+    for item in cart_items:
+        OrderItem.objects.create(
+            order=order,
+            flower_id=item["product"]["id"],
+            quantity=item["quantity"],
+            price=item["price"]
+        )
 
 
 class Cart:

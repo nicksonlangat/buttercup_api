@@ -1,26 +1,26 @@
 from django.urls import path
 
 from .views import (
-    CategoryCreateApi,
-    CategoryListApi,
-    CategoryUpdateApi,
-    CategoryDeleteApi,
-    FlowerCreateApi,
-    FlowerListApi,
-    CartAPI
+    CategoryApi,
+    FlowerApi,
+    CartAPI,
+    OrderApi,
+    OrderItemApi
     )
 
 urlpatterns = [
     # category endpoints
-    path("categories/create/", CategoryCreateApi.as_view(), name="category_create"),
-    path("categories/list/", CategoryListApi.as_view(), name="category_list"),
-    path("categories/update/<uuid:pk>/", CategoryUpdateApi.as_view(), name="category_update"),
-    path("categories/delete/<uuid:pk>/", CategoryDeleteApi.as_view(), name="category_delete"),
+    path("categories/", CategoryApi.as_view(), name="categories"),
 
     # flower endpoints
-    path("flowers/create/", FlowerCreateApi.as_view(), name="flower_create"),
-    path("flowers/list/", FlowerListApi.as_view(), name="flower_list"),
+    path("flowers/", FlowerApi.as_view(), name="flowers"),
 
     # cart endpoints
     path("cart/", CartAPI.as_view(), name="cart"),
+
+    # order endpoints
+    path("orders/", OrderApi.as_view(), name="orders"),
+
+    # order item endpoints
+    path("order/items", OrderItemApi.as_view(), name="order_items"),
 ]
