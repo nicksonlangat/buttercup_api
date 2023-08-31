@@ -6,7 +6,8 @@ from .views import (
     CategoryUpdateApi,
     CategoryDeleteApi,
     FlowerCreateApi,
-    FlowerListApi
+    FlowerListApi,
+    CartAPI
     )
 
 urlpatterns = [
@@ -19,4 +20,7 @@ urlpatterns = [
     # flower endpoints
     path("flowers/create/", FlowerCreateApi.as_view(), name="flower_create"),
     path("flowers/list/", FlowerListApi.as_view(), name="flower_list"),
+
+    # cart endpoints
+    path("cart/", CartAPI.as_view(), name="cart"),
 ]
