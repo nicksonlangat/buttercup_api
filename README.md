@@ -1,4 +1,9 @@
 # Buttercup_api
+
+## APP SCREENS
+Please follow [this link](https://github.com/nicksonlangat/buttercup.git) which has the app screens
+
+## PROJECT BRIEF
 Buttercup is an online e-commerce shop that stocks a wide variety of flowers. You are welcome to view flower catalog, individual flower detail, add flowers to your basket, place an order and schedule delivery and pick up. This repo houses all the server related code written in Python, Django and Django Rest Framework.
 
 The frontend part of this project is found [in this repo](https://github.com/nicksonlangat/buttercup.git) and is written using JavaScript, Vue Js and Tailwind CSS.
